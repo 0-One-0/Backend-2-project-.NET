@@ -36,5 +36,16 @@ namespace Inlämning_Backend.Services
                 p.Image,
                 p.UrlSlug)).FirstOrDefaultAsync();
         }
+
+        public async Task<List<ProductDto>> GetProductBySlugAsync(string slug)
+        {
+            return await _context.Products.Where(p => p.UrlSlug == slug).Select(p => new ProductDto(
+                p.Id,
+                p.Name,
+                p.Price,
+                p.Description,
+                p.Image,
+                p.UrlSlug)).ToListAsync();
+        }
     }
 }

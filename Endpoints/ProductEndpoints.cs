@@ -8,8 +8,14 @@ namespace Inlämning_Backend.Endpoints
         public static void MapProductEndpoints(WebApplication app)
         {
             //Get products and also filter by slug, it also takes pagination.
-            app.MapGet("api/products", async (ProductService service)=> { 
+            app.MapGet("api/products", async (ProductService service, string? slug) => { 
 
+                if(slug is not null)
+                {
+                    var product = await service.GetProductBySlugAsync(slug);
+                
+                    return Results.Ok(product);
+                }
                 var products = await service.GetProductsAsync();
                 return Results.Ok(products);
 
