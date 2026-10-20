@@ -1,7 +1,11 @@
-@Inlämning_Backend_HostAddress = http://localhost:8000
+@Inlämning_Backend_HostAddress = https://localhost:8000
 
 
-GET {{Inlämning_Backend_HostAddress}}/weatherforecast/
+GET {{Inlämning_Backend_HostAddress}}/api/products
+Accept: application/json
+
+###
+GET {{Inlämning_Backend_HostAddress}}/api/products/1
 Accept: application/json
 
 ###
