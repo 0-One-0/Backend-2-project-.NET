@@ -8,7 +8,13 @@ namespace Inlämning_Backend.Endpoints
         public static void MapProductEndpoints(WebApplication app)
         {
             //Get products and also filter by slug, it also takes pagination.
-            app.MapGet("api/products", async (ProductService service, string? slug) => { 
+            app.MapGet("api/products", async (ProductService service, string? slug, int page 
+                = 1, int pageSize = 10) => {
+
+                    if (page < 1 || pageSize < 1 || pageSize > 50)
+                    {
+                        return Results.BadRequest();
+                    }
 
                 if(slug is not null)
                 {
@@ -16,7 +22,7 @@ namespace Inlämning_Backend.Endpoints
                 
                     return Results.Ok(product);
                 }
-                var products = await service.GetProductsAsync();
+                var products = await service.GetProductsAsync(page, pageSize);
                 return Results.Ok(products);
 
             });

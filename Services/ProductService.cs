@@ -15,9 +15,12 @@ namespace Inlämning_Backend.Services
             _context = context;
         }
 
-        public async Task<List<ProductDto>> GetProductsAsync()
+        public async Task<List<ProductDto>> GetProductsAsync(int page, int pageSize)
         {
-            return await _context.Products.Select(p => new ProductDto(
+            return await _context.Products.OrderBy(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ProductDto(
                 p.Id,
                 p.Name,
                 p.Price,
