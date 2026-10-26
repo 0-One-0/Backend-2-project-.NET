@@ -47,8 +47,15 @@ namespace Inlämning_Backend.Endpoints
 
             });
             //Delete product by id
-            app.MapDelete("api/products/{id:int}", () => {
+            app.MapDelete("api/products/{id:int}", async (ProductService service, int id) => {
 
+               var res = await service.DeleteProductAsync(id);
+
+                if (!res)
+                {
+                    return Results.NotFound();
+                }
+                return Results.NoContent();
             });
         }
     }

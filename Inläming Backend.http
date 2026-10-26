@@ -1,11 +1,16 @@
 @Inlämning_Backend_HostAddress = https://localhost:8000
 
 
-GET {{Inlämning_Backend_HostAddress}}/api/products?page=0
+GET {{Inlämning_Backend_HostAddress}}/api/products?page=1
 Accept: application/json
 
 ###
 GET {{Inlämning_Backend_HostAddress}}/api/products/1
+Accept: application/json
+
+###
+
+DELETE {{Inlämning_Backend_HostAddress}}/api/products/1
 Accept: application/json
 
 ###

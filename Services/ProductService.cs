@@ -50,5 +50,18 @@ namespace Inlämning_Backend.Services
                 p.Image,
                 p.UrlSlug)).ToListAsync();
         }
+
+        public async Task<bool> DeleteProductAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product is null)
+            {
+                return false;
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
