@@ -1,11 +1,11 @@
 @Inlämning_Backend_HostAddress = https://localhost:8000
 
 
-GET {{Inlämning_Backend_HostAddress}}/api/products?page=1
+GET {{Inlämning_Backend_HostAddress}}/api/products?slug=svart-tshirt
 Accept: application/json
 
 ###
-GET {{Inlämning_Backend_HostAddress}}/api/products/1
+GET {{Inlämning_Backend_HostAddress}}/api/products/5
 Accept: application/json
 
 ###
@@ -14,3 +14,22 @@ DELETE {{Inlämning_Backend_HostAddress}}/api/products/1
 Accept: application/json
 
 ###
+
+POST {{Inlämning_Backend_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Svart T-Shirt",
+  "description": "Lorem ipsum dolor",
+  "price": 10,
+  "image": "/images/svart-tshirt.png"
+}
+###
+
+GET {{Inlämning_Backend_HostAddress}}/api/categories
+Accept: application/json
+
+###
+
+GET {{Inlämning_Backend_HostAddress}}/api/categories?slug=t-shirt
+Accept: application/json

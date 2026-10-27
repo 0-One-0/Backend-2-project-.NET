@@ -1,7 +1,10 @@
 ﻿using Inlämning_Backend.Data;
 using Inlämning_Backend.Dtos;
+using Inlämning_Backend.Exceptions;
 using Inlämning_Backend.Models;
+using Inlämning_Backend.Helper;
 using Microsoft.EntityFrameworkCore;
+
 
 namespace Inlämning_Backend.Services
 {
@@ -15,6 +18,7 @@ namespace Inlämning_Backend.Services
             _context = context;
         }
 
+  
         public async Task<List<ProductDto>> GetProductsAsync(int page, int pageSize)
         {
             return await _context.Products.OrderBy(p => p.Id)
@@ -38,6 +42,34 @@ namespace Inlämning_Backend.Services
                 p.Description,
                 p.Image,
                 p.UrlSlug)).FirstOrDefaultAsync();
+        }
+
+        public async Task<ProductDto> CreateProductAsync(CreateProductRequest request)
+        {
+            var product = new Product
+            {
+                Name = request.Name,
+                Price = request.Price,
+                Description = request.Description,
+                Image = request.Image,
+                UrlSlug = SlugHelper.GenerateSlug(request.Name)
+            };
+           
+            var exists = await _context.Products.AnyAsync(p => p.UrlSlug == product.UrlSlug);
+            if (exists)
+            {
+                throw new DuplicateSlugException($"A product with the name '{request.Name}' already exists.");
+            }
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+            
+            return new ProductDto(
+                product.Id,
+                product.Name,
+                product.Price,
+                product.Description,
+                product.Image,
+                product.UrlSlug);
         }
 
         public async Task<List<ProductDto>> GetProductBySlugAsync(string slug)

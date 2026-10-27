@@ -12,7 +12,11 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddValidation();
+builder.Services.AddProblemDetails();
 var app = builder.Build();
+
 
 app.MapOpenApi();            
 app.MapScalarApiReference();
