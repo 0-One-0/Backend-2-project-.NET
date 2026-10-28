@@ -1,8 +1,8 @@
 ﻿using Inlämning_Backend.Data;
 using Inlämning_Backend.Dtos;
 using Inlämning_Backend.Exceptions;
-using Inlämning_Backend.Models;
 using Inlämning_Backend.Helper;
+using Inlämning_Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -18,7 +18,7 @@ namespace Inlämning_Backend.Services
             _context = context;
         }
 
-  
+
         public async Task<List<ProductDto>> GetProductsAsync(int page, int pageSize)
         {
             return await _context.Products.OrderBy(p => p.Id)
@@ -43,7 +43,21 @@ namespace Inlämning_Backend.Services
                 p.Image,
                 p.UrlSlug)).FirstOrDefaultAsync();
         }
-
+        public async Task<UpdateProductReq?> GetProductForUpdateAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product is null)
+            {
+                return null;
+            }
+            return new UpdateProductReq
+            {
+                Name = product.Name,
+                Price = product.Price,
+                Description = product.Description,
+                Image = product.Image
+            };
+        }
         public async Task<ProductDto> CreateProductAsync(CreateProductRequest request)
         {
             var product = new Product
@@ -54,7 +68,7 @@ namespace Inlämning_Backend.Services
                 Image = request.Image,
                 UrlSlug = SlugHelper.GenerateSlug(request.Name)
             };
-           
+
             var exists = await _context.Products.AnyAsync(p => p.UrlSlug == product.UrlSlug);
             if (exists)
             {
@@ -62,7 +76,7 @@ namespace Inlämning_Backend.Services
             }
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
-            
+
             return new ProductDto(
                 product.Id,
                 product.Name,

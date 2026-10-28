@@ -1,27 +1,29 @@
 ﻿using Inlämning_Backend.Dtos;
-using Inlämning_Backend.Services;
 using Inlämning_Backend.Exceptions;
+using Inlämning_Backend.Services;
+using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 
 namespace Inlämning_Backend.Endpoints
 {
     public class ProductEndpoints
     {
-        
+
         public static void MapProductEndpoints(WebApplication app)
         {
             //Get products and also filter by slug, it also takes pagination.
-            app.MapGet("/api/products", async (ProductService service, string? slug, int page 
-                = 1, int pageSize = 10) => {
+            app.MapGet("/api/products", async (ProductService service, string? slug, int page
+                = 1, int pageSize = 10) =>
+            {
 
-                    if (page < 1 || pageSize < 1 || pageSize > 50)
-                    {
-                        return Results.BadRequest();
-                    }
+                if (page < 1 || pageSize < 1 || pageSize > 50)
+                {
+                    return Results.BadRequest();
+                }
 
-                if(!string.IsNullOrWhiteSpace(slug))
+                if (!string.IsNullOrWhiteSpace(slug))
                 {
                     var product = await service.GetProductBySlugAsync(slug);
-                
+
                     return Results.Ok(product);
                 }
                 var products = await service.GetProductsAsync(page, pageSize);
@@ -29,7 +31,8 @@ namespace Inlämning_Backend.Endpoints
 
             });
             //Get product by id
-            app.MapGet("/api/products/{id:int}", async (ProductService service, int id) => {
+            app.MapGet("/api/products/{id:int}", async (ProductService service, int id) =>
+            {
 
                 var product = await service.GetProductByIdAsync(id);
                 if (product is null)
@@ -41,7 +44,8 @@ namespace Inlämning_Backend.Endpoints
 
             });
             //Create product
-            app.MapPost("/api/products", async (ProductService service, CreateProductRequest request) => {
+            app.MapPost("/api/products", async (ProductService service, CreateProductRequest request) =>
+            {
 
                 try
                 {
@@ -55,13 +59,22 @@ namespace Inlämning_Backend.Endpoints
 
             });
             //Update product by id
-            app.MapPatch("/api/products/{id:int}", () => {
+            app.MapPatch("/api/products/{id:int}", async (ProductService service, int id, JsonPatchDocument<UpdateProductReq> patch) =>
+            {
+
+                var copy = await service.GetProductForUpdateAsync(id);
+                if (copy is null)
+                {
+                    return Results.NotFound();
+                }
+                patch.ApplyTo(copy);
 
             });
             //Delete product by id
-            app.MapDelete("/api/products/{id:int}", async (ProductService service, int id) => {
+            app.MapDelete("/api/products/{id:int}", async (ProductService service, int id) =>
+            {
 
-               var res = await service.DeleteProductAsync(id);
+                var res = await service.DeleteProductAsync(id);
 
                 if (!res)
                 {
@@ -71,5 +84,5 @@ namespace Inlämning_Backend.Endpoints
             });
         }
     }
-    
+
 }
