@@ -1,6 +1,6 @@
 ﻿using Inlämning_Backend.Dtos;
-using Inlämning_Backend.Services;
 using Inlämning_Backend.Exceptions;
+using Inlämning_Backend.Services;
 
 namespace Inlämning_Backend.Endpoints
 {
@@ -48,27 +48,44 @@ namespace Inlämning_Backend.Endpoints
             //Add product to category by id
             app.MapPost("/api/categories/{categoryID:int}/products/{productId:int}", async (CategoryService service, int categoryID, int productId) =>
             {
-                try
-                {
-                    await service.AddProductToCategoryAsync(categoryID, productId);
-                    return Results.NoContent();
-                }
-                catch (KeyNotFoundException)
+
+
+                var result = await service.AddProductToCategoryAsync(categoryID, productId);
+
+                if (!result)
                 {
                     return Results.NotFound();
                 }
+                return Results.NoContent();
+
+
             });
             //Update category by id
             app.MapPatch("/api/categories/{id:int}", () =>
             {
+
             });
             //Delete category by id
-            app.MapDelete("/api/categories/{id:int}", () =>
+            app.MapDelete("/api/categories/{id:int}", async (CategoryService service, int id) =>
             {
+                var detelet = await service.DeleteCategoryAsync(id);
+                if (!detelet)
+                {
+                    return Results.NotFound();
+                }
+                return Results.NoContent();
             });
             //Take away product from category by id
-            app.MapDelete("/api/categories/{categoryID:int}/products/{productId:int}", () =>
+            app.MapDelete("/api/categories/{categoryID:int}/products/{productId:int}", async (CategoryService service, int categoryID, int productId) =>
             {
+                var result = await service.DeleteProductFromCategoryAsync(categoryID, productId);
+                if (!result)
+                {
+                    return Results.NotFound();
+                }
+                return Results.NoContent();
+
+
             });
         }
     }

@@ -1,8 +1,8 @@
 ﻿using Inlämning_Backend.Data;
 using Inlämning_Backend.Dtos;
 using Inlämning_Backend.Exceptions;
-using Inlämning_Backend.Models;
 using Inlämning_Backend.Helper;
+using Inlämning_Backend.Models;
 using Microsoft.EntityFrameworkCore;
 namespace Inlämning_Backend.Services
 {
@@ -89,25 +89,57 @@ namespace Inlämning_Backend.Services
                 category.UrlSlug
             );
         }
-        public async Task AddProductToCategoryAsync(int categoryId, int productId)
+        public async Task<bool> AddProductToCategoryAsync(int categoryId, int productId)
         {
             var category = await _context.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == categoryId);
             if (category == null)
             {
-                throw new KeyNotFoundException($"Category with ID {categoryId} not found.");
+                return false;
             }
             var product = await _context.Products.FindAsync(productId);
             if (product == null)
             {
-                throw new KeyNotFoundException($"Product with ID {productId} not found.");
+                return false;
             }
             if (!category.Products.Contains(product))
             {
                 category.Products.Add(product);
                 await _context.SaveChangesAsync();
             }
+            return true;
+        }
+
+
+        public async Task<bool> DeleteCategoryAsync(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return false;
+            }
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> DeleteProductFromCategoryAsync(int categoryId, int productId)
+        {
+            var category = await _context.Categories.Include(c => c.Products).FirstOrDefaultAsync(c => c.Id == categoryId);
+            if (category == null)
+            {
+                return false;
+            }
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null)
+            {
+                return false;
+            }
+            if (category.Products.Contains(product))
+            {
+                category.Products.Remove(product);
+                await _context.SaveChangesAsync();
+            }
+            return true;
         }
     }
 }
 
-                 
