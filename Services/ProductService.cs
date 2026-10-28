@@ -86,6 +86,35 @@ namespace Inlämning_Backend.Services
                 product.UrlSlug);
         }
 
+        public async Task<ProductDto?> UpdateProductAsync(int id, UpdateProductReq copy)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product is null)
+            {
+                return null;
+            }
+
+            var newSlug = SlugHelper.GenerateSlug(copy.Name);
+            var exists = await _context.Products.AnyAsync(p => p.UrlSlug == newSlug && p.Id != id);
+            if (exists)
+            {
+                throw new DuplicateSlugException($"A product with the name '{copy.Name}' already exists.");
+            }
+
+            product.Name = copy.Name;
+            product.Price = copy.Price;
+            product.Description = copy.Description;
+            product.Image = copy.Image;
+            product.UrlSlug = newSlug;
+            await _context.SaveChangesAsync();
+            return new ProductDto(
+                product.Id,
+                product.Name,
+                product.Price,
+                product.Description,
+                product.Image,
+                product.UrlSlug);
+        }
         public async Task<List<ProductDto>> GetProductBySlugAsync(string slug)
         {
             return await _context.Products.Where(p => p.UrlSlug == slug).Select(p => new ProductDto(

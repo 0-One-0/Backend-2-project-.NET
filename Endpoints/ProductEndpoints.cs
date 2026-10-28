@@ -2,6 +2,8 @@
 using Inlämning_Backend.Exceptions;
 using Inlämning_Backend.Services;
 using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
+using Microsoft.AspNetCore.JsonPatch.SystemTextJson.Exceptions;
+using System.ComponentModel.DataAnnotations;
 
 namespace Inlämning_Backend.Endpoints
 {
@@ -67,7 +69,40 @@ namespace Inlämning_Backend.Endpoints
                 {
                     return Results.NotFound();
                 }
-                patch.ApplyTo(copy);
+                try
+                {
+                    patch.ApplyTo(copy);
+                }
+                catch (JsonPatchException ex)
+                {
+                    return Results.BadRequest(ex.Message);
+                }
+
+                var results = new List<ValidationResult>();
+                var isValid = Validator.TryValidateObject(copy, new ValidationContext(copy), results, validateAllProperties: true);
+
+                if (!isValid)
+                {
+                    var errors = results
+                        .GroupBy(r => r.MemberNames.FirstOrDefault() ?? "")
+                        .ToDictionary(g => g.Key, g => g.Select(r => r.ErrorMessage ?? "").ToArray());
+
+                    return Results.ValidationProblem(errors);
+                }
+
+                try
+                {
+                    var updatedProduct = await service.UpdateProductAsync(id, copy);
+                    if (updatedProduct is null)
+                    {
+                        return Results.NotFound();
+                    }
+                    return Results.Ok(updatedProduct);
+                }
+                catch (DuplicateSlugException ex)
+                {
+                    return Results.Conflict(ex.Message);
+                }
 
             });
             //Delete product by id
