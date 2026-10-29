@@ -108,6 +108,49 @@ namespace Inlämning_Backend.Services
             }
             return true;
         }
+        public async Task<CategorySummaryDto?> UpdateCategoryAsync(int id, UpdateCategoryReq copy)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return null;
+            }
+            var newSlug = SlugHelper.GenerateSlug(copy.Name);
+            var exists = await _context.Categories.AnyAsync(p => p.UrlSlug == newSlug && p.Id != id);
+
+            if (exists)
+            {
+                throw new DuplicateSlugException($"A category with the name '{copy.Name}' already exists.");
+            }
+
+            category.Name = copy.Name;
+            category.Image = copy.Image;
+            category.UrlSlug = newSlug;
+            await _context.SaveChangesAsync();
+            return new CategorySummaryDto(
+                category.Id,
+                category.Name,
+                category.Image,
+                category.UrlSlug
+            );
+
+        }
+
+        public async Task<UpdateCategoryReq?> GetCategoryForUpdateAsync(int id)
+        {
+            var category = await _context.Categories.FindAsync(id);
+            if (category == null)
+            {
+                return null;
+            }
+
+            return new UpdateCategoryReq
+            {
+                Name = category.Name,
+                Image = category.Image
+            };
+        }
+
 
 
         public async Task<bool> DeleteCategoryAsync(int id)

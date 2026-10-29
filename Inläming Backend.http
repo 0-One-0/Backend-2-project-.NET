@@ -5,6 +5,9 @@ GET {{Inlämning_Backend_HostAddress}}/api/products?slug=svart-tshirt
 Accept: application/json
 
 ###
+GET {{Inlämning_Backend_HostAddress}}/api/products
+Accept: application/json
+###
 GET {{Inlämning_Backend_HostAddress}}/api/products/5
 Accept: application/json
 
@@ -19,7 +22,7 @@ POST {{Inlämning_Backend_HostAddress}}/api/products
 Content-Type: application/json
 
 {
-  "name": "Svart T-Shirt",
+  "name": "Röd Keps",
   "description": "Lorem ipsum dolor",
   "price": 10,
   "image": "/images/svart-tshirt.png"
@@ -31,5 +34,62 @@ Accept: application/json
 
 ###
 
-GET {{Inlämning_Backend_HostAddress}}/api/categories?slug=t-shirt
+GET {{Inlämning_Backend_HostAddress}}/api/categories?slug=trojor1
 Accept: application/json
+
+### Ändra pris → 200, slugen oförändrad
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/5
+Content-Type: application/json-patch+json
+
+[{ "op": "replace", "path": "/price", "value": 249 }]
+
+### Ändra namn → 200, ny slug
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
+Content-Type: application/json-patch+json
+
+[{ "op": "replace", "path": "/name", "value": "Röd Keps" }]
+
+### Ändra flera fält samtidigt → 200
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
+Content-Type: application/json-patch+json
+
+[
+  { "op": "replace", "path": "/description", "value": "Mjuk och skön" },
+  { "op": "replace", "path": "/price", "value": 399 }
+]
+
+### Tomt namn → 400 med errors
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
+Content-Type: application/json-patch+json
+
+[{ "op": "replace", "path": "/name", "value": "" }]
+
+### Pris 0 → 400 med errors
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
+Content-Type: application/json-patch+json
+
+[{ "op": "replace", "path": "/price", "value": 0 }]
+
+### Försök ändra id → 400
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
+Content-Type: application/json-patch+json
+
+[{ "op": "replace", "path": "/id", "value": 99 }]
+
+### Produkt som inte finns → 404
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/999
+Content-Type: application/json-patch+json
+
+[{ "op": "replace", "path": "/price", "value": 249 }]
+
+### Byt namn → 200, ny slug
+PATCH {{Inlämning_Backend_HostAddress}}/api/categories/1
+Content-Type: application/json-patch+json
+
+[{ "op": "replace", "path": "/name", "value": "Tröjor" }]
+
+### Tomt namn → 400
+PATCH {{Inlämning_Backend_HostAddress}}/api/categories/1
+Content-Type: application/json-patch+json
+
+[{ "op": "replace", "path": "/name", "value": "" }]

@@ -115,6 +115,7 @@ namespace Inlämning_Backend.Services
                 product.Image,
                 product.UrlSlug);
         }
+
         public async Task<List<ProductDto>> GetProductBySlugAsync(string slug)
         {
             return await _context.Products.Where(p => p.UrlSlug == slug).Select(p => new ProductDto(
