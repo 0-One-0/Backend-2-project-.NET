@@ -13,19 +13,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<CartService>();
 builder.Services.AddValidation();
 builder.Services.AddProblemDetails();
 var app = builder.Build();
 
 
-app.MapOpenApi();            
+app.MapOpenApi();
 app.MapScalarApiReference();
 
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
 
-
+CartEndpoints.MapCartEndpoints(app);
 ProductEndpoints.MapProductEndpoints(app);
 CategoryEndpoints.MapCategoryEndpoints(app);
 
