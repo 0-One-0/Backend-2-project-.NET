@@ -1,74 +1,76 @@
 @Inlämning_Backend_HostAddress = https://localhost:8000
 
-
-GET {{Inlämning_Backend_HostAddress}}/api/products?slug=svart-tshirt
-Accept: application/json
-
-###
-GET {{Inlämning_Backend_HostAddress}}/api/products
-Accept: application/json
-###
-GET {{Inlämning_Backend_HostAddress}}/api/products/5
-Accept: application/json
-
-###
-
-DELETE {{Inlämning_Backend_HostAddress}}/api/products/1
-Accept: application/json
-
-###
-
+### Skapa produkt → 201
 POST {{Inlämning_Backend_HostAddress}}/api/products
 Content-Type: application/json
 
 {
-  "name": "Röd Keps",
-  "description": "Lorem ipsum dolor",
-  "price": 10,
-  "image": "/images/svart-tshirt.png"
+  "name": "Test Jacka",
+  "description": "En varm jacka",
+  "price": 899,
+  "image": "/images/test-jacka.png"
 }
-###
 
-GET {{Inlämning_Backend_HostAddress}}/api/categories
-Accept: application/json
+### Skapa samma igen → 409
+POST {{Inlämning_Backend_HostAddress}}/api/products
+Content-Type: application/json
 
-###
+{
+  "name": "Test Jacka",
+  "description": "En varm jacka",
+  "price": 899,
+  "image": "/images/test-jacka.png"
+}
 
-GET {{Inlämning_Backend_HostAddress}}/api/categories?slug=trojor1
-Accept: application/json
+### Skapa med tomt namn och pris 0 → 400
+POST {{Inlämning_Backend_HostAddress}}/api/products
+Content-Type: application/json
 
-### Ändra pris → 200, slugen oförändrad
-PATCH {{Inlämning_Backend_HostAddress}}/api/products/5
+{
+  "name": "",
+  "description": "Ogiltig",
+  "price": 0,
+  "image": "/images/x.png"
+}
+
+### Hämta alla → 200
+GET {{Inlämning_Backend_HostAddress}}/api/products
+
+### Paginering → 200, max 2 st
+GET {{Inlämning_Backend_HostAddress}}/api/products?page=1&pageSize=2
+
+### Ogiltig sida → 400
+GET {{Inlämning_Backend_HostAddress}}/api/products?page=0
+
+### Hämta via slug → 200, lista med 1 produkt
+GET {{Inlämning_Backend_HostAddress}}/api/products?slug=test-jacka
+
+### Slug som inte finns → 200, tom lista
+GET {{Inlämning_Backend_HostAddress}}/api/products?slug=finns-inte
+
+### Hämta via id → 200
+GET {{Inlämning_Backend_HostAddress}}/api/products/2
+
+### Id som inte finns → 404
+GET {{Inlämning_Backend_HostAddress}}/api/products/99999
+
+### Ändra pris → 200, slug oförändrad
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
 Content-Type: application/json-patch+json
 
-[{ "op": "replace", "path": "/price", "value": 249 }]
+[{ "op": "replace", "path": "/price", "value": 999 }]
 
 ### Ändra namn → 200, ny slug
-PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/7
 Content-Type: application/json-patch+json
 
-[{ "op": "replace", "path": "/name", "value": "Röd Keps" }]
+[{ "op": "replace", "path": "/name", "value": "Test Vinterjacka" }]
 
-### Ändra flera fält samtidigt → 200
-PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
-Content-Type: application/json-patch+json
-
-[
-  { "op": "replace", "path": "/description", "value": "Mjuk och skön" },
-  { "op": "replace", "path": "/price", "value": 399 }
-]
-
-### Tomt namn → 400 med errors
-PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
+### Tomt namn → 400
+PATCH {{Inlämning_Backend_HostAddress}}/api/products/7
 Content-Type: application/json-patch+json
 
 [{ "op": "replace", "path": "/name", "value": "" }]
-
-### Pris 0 → 400 med errors
-PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
-Content-Type: application/json-patch+json
-
-[{ "op": "replace", "path": "/price", "value": 0 }]
 
 ### Försök ändra id → 400
 PATCH {{Inlämning_Backend_HostAddress}}/api/products/2
@@ -76,20 +78,136 @@ Content-Type: application/json-patch+json
 
 [{ "op": "replace", "path": "/id", "value": 99 }]
 
-### Produkt som inte finns → 404
-PATCH {{Inlämning_Backend_HostAddress}}/api/products/999
-Content-Type: application/json-patch+json
+### Radera → 204
+DELETE {{Inlämning_Backend_HostAddress}}/api/products/4
 
-[{ "op": "replace", "path": "/price", "value": 249 }]
+### Radera igen → 404
+DELETE {{Inlämning_Backend_HostAddress}}/api/products/7
+
+
+
+
+
+
+
+### Skapa kategori → 201
+POST {{Inlämning_Backend_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "Test Jackor",
+  "image": "/images/jackor.png"
+}
+
+### Skapa samma igen → 409
+POST {{Inlämning_Backend_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "Test Jackor",
+  "image": "/images/jackor.png"
+}
+
+### Tomt namn → 400
+POST {{Inlämning_Backend_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "",
+  "image": "/images/x.png"
+}
+
+### Hämta alla → 200, med products
+GET {{Inlämning_Backend_HostAddress}}/api/categories
+
+### Hämta via id → 200
+GET {{Inlämning_Backend_HostAddress}}/api/categories/1
+
+### Id som inte finns → 404
+GET {{Inlämning_Backend_HostAddress}}/api/categories/99999
+
+### Hämta via slug → 200, lista med 1 kategori
+GET {{Inlämning_Backend_HostAddress}}/api/categories?slug=test-jackor
+
+### Lägg till produkt i kategori → 204
+POST {{Inlämning_Backend_HostAddress}}/api/categories/2/products/4
+
+### Produkt som inte finns → 404
+POST {{Inlämning_Backend_HostAddress}}/api/categories/1/products/99999
 
 ### Byt namn → 200, ny slug
 PATCH {{Inlämning_Backend_HostAddress}}/api/categories/1
 Content-Type: application/json-patch+json
 
-[{ "op": "replace", "path": "/name", "value": "Tröjor" }]
+[{ "op": "replace", "path": "/name", "value": "Test Tröjor" }]
 
 ### Tomt namn → 400
 PATCH {{Inlämning_Backend_HostAddress}}/api/categories/1
 Content-Type: application/json-patch+json
 
 [{ "op": "replace", "path": "/name", "value": "" }]
+
+### Ta bort produkt från kategori → 204
+DELETE {{Inlämning_Backend_HostAddress}}/api/categories/1/products/4
+
+### Radera kategori → 204
+DELETE {{Inlämning_Backend_HostAddress}}/api/categories/1
+
+### Radera igen → 404
+DELETE {{Inlämning_Backend_HostAddress}}/api/categories/1
+
+
+
+
+
+
+### Skapa varukorg → 201
+POST {{Inlämning_Backend_HostAddress}}/api/carts
+
+### Lägg till produkt, utan quantity → 200, antal 1
+POST {{Inlämning_Backend_HostAddress}}/api/carts/2/items
+Content-Type: application/json
+
+{ "productId": 4 }
+
+### Lägg till samma igen → 200, antal 4
+POST {{Inlämning_Backend_HostAddress}}/api/carts/1/items
+Content-Type: application/json
+
+{ "productId": 4, "quantity": 3 }
+
+### Över maxgränsen → 400 (4 + 12 = 16)
+POST {{Inlämning_Backend_HostAddress}}/api/carts/1/items
+Content-Type: application/json
+
+{ "productId": 4, "quantity": 12 }
+
+### Quantity 0 → 400
+POST {{Inlämning_Backend_HostAddress}}/api/carts/1/items
+Content-Type: application/json
+
+{ "productId": 1, "quantity": 0 }
+
+### Produkt som inte finns → 404
+POST {{Inlämning_Backend_HostAddress}}/api/carts/1/items
+Content-Type: application/json
+
+{ "productId": 99999 }
+
+### Visa varukorgen → 200, med subtotal och total
+GET {{Inlämning_Backend_HostAddress}}/api/carts/2
+
+### Sätt exakt antal → 200, antal 2
+PUT {{Inlämning_Backend_HostAddress}}/api/carts/1/items/4
+Content-Type: application/json
+
+{ "quantity": 2 }
+
+### Ta bort produkt ur varukorgen → 204
+DELETE {{Inlämning_Backend_HostAddress}}/api/carts/1/items/4
+
+### Radera varukorgen → 204
+DELETE {{Inlämning_Backend_HostAddress}}/api/carts/1
+
+### Hämta raderad varukorg → 404
+GET {{Inlämning_Backend_HostAddress}}/api/carts/2
